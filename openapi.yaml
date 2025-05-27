@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: Ecovision API
   description: |
@@ -78,6 +78,30 @@ paths:
                         type: integer
         '401':
           description: Kredensial tidak valid
+
+  /auth/refresh:
+    post:
+      summary: Refresh token untuk mendapatkan token baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
 
   /auth/oauth:
     get:
