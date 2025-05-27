@@ -98,7 +98,7 @@ paths:
         informasi klasifikasi serta poin yang didapat.
         Sistem EXP dan Level dapat berubah secara dinamis sesuai kebijakan pengembang.
         EXP per level dapat diatur ulang sewaktu-waktu.
-        note : Reward ketika naik level juga bisa ditambahkan, namun saat ini masih opsional.
+        **note : Reward ketika naik level juga bisa ditambahkan, namun saat ini masih opsional.**
       requestBody:
         required: true
         content:
