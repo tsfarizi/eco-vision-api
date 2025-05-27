@@ -1,0 +1,151 @@
+openapi: 3.0.3
+info:
+  title: Ecovision API
+  description: |
+    API untuk aplikasi klasifikasi sampah dengan pendekatan gamifikasi. 
+    Mendukung autentikasi berbasis JWT dan memiliki sistem EXP serta level user. 
+    Dirancang untuk mendukung ekstensibilitas terhadap sistem reward dan autentikasi berbasis OAuth di masa depan.
+  version: 1.0.0
+
+paths:
+  /auth/register:
+    post:
+      summary: Registrasi pengguna baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                extra_fields:
+                  type: object
+                  description: |
+                    Opsi tambahan jika ingin menambahkan field-field lain seperti `full_name`, 
+                    atau `referral_code` untuk kebutuhan kampanye promosi atau segmentasi.
+      responses:
+        '201':
+          description: Registrasi berhasil
+        '400':
+          description: Permintaan tidak valid
+
+  /auth/login:
+    post:
+      summary: Autentikasi pengguna dan menerima JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Token berhasil diberikan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      email:
+                        type: string
+                      level:
+                        type: integer
+                      exp:
+                        type: integer
+        '401':
+          description: Kredensial tidak valid
+
+  /auth/oauth:
+    get:
+      summary: OAuth login (opsional)
+      description: |
+        Endpoint ini disediakan untuk kemungkinan integrasi login dengan OAuth 
+        (Google, Apple, dll.) pada versi berikutnya.
+      responses:
+        '501':
+          description: Belum diimplementasikan
+
+  /vision/classify:
+    post:
+      summary: Kirim gambar untuk diklasifikasikan oleh model AI
+      description: |
+        Endpoint ini menerima gambar yang dikirimkan user, kemudian diklasifikasikan 
+        oleh model AI ke dalam kategori sampah yang sesuai. Sistem akan mengembalikan 
+        informasi klasifikasi serta poin yang didapat.
+        Sistem EXP dan Level dapat berubah secara dinamis sesuai kebijakan pengembang.
+        EXP per level dapat diatur ulang sewaktu-waktu.
+        note : Reward ketika naik level juga bisa ditambahkan, namun saat ini masih opsional.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Klasifikasi berhasil dilakukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category:
+                    type: string
+                    example: "Plastic"
+                  points_awarded:
+                    type: integer
+                    example: 10
+                  exp_gained:
+                    type: integer
+                    example: 50
+                  current_level:
+                    type: integer
+                    example: 2
+                  next_level_exp_required:
+                    type: integer
+                    example: 500
+                  reward:
+                    type: string
+                    nullable: true
+                    description: |
+                      Informasi reward jika user naik level. Field ini opsional dan akan 
+                      muncul jika reward sudah didefinisikan.
+                      Contoh: "Badge: Eco Hero", "Voucher", dll.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
