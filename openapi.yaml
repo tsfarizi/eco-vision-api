@@ -6,7 +6,7 @@ info:
     Mendukung autentikasi berbasis JWT dan memiliki sistem EXP serta level user. 
     Dirancang untuk mendukung ekstensibilitas terhadap sistem reward dan autentikasi berbasis OAuth di masa depan.
     ⚠️ [Placeholder Link](https://tsfarizi.github.io/) — belum final.
-  version: 0.1.1
+  version: 0.1.2
 
 paths:
   /auth/register:
