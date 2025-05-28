@@ -121,8 +121,6 @@ paths:
                     items:
                       type: string
                       example: Invalid email or password.
-        '401':
-          description: Kredensial tidak valid
 
   /auth/refresh:
     post:
