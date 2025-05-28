@@ -5,12 +5,15 @@ info:
     API untuk aplikasi klasifikasi sampah dengan pendekatan gamifikasi. 
     Mendukung autentikasi berbasis JWT dan memiliki sistem EXP serta level user. 
     Dirancang untuk mendukung ekstensibilitas terhadap sistem reward dan autentikasi berbasis OAuth di masa depan.
-  version: 0.1.0
+  version: 0.1.1
 
 paths:
   /auth/register:
     post:
       summary: Registrasi pengguna baru
+      description: |
+        Mendaftarkan pengguna baru dan langsung mengembalikan token akses serta informasi user.
+        Dengan demikian, user tidak perlu melakukan login ulang setelah registrasi.
       requestBody:
         required: true
         content:
@@ -33,9 +36,39 @@ paths:
                     atau `referral_code` untuk kebutuhan kampanye promosi atau segmentasi.
       responses:
         '201':
-          description: Registrasi berhasil
+          description: Registrasi berhasil dan token diberikan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                      email:
+                        type: string
+                      level:
+                        type: integer
+                      exp:
+                        type: integer
         '400':
           description: Permintaan tidak valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  non_field_errors:
+                    type: array
+                    items:
+                      type: string
+                      example: user with this email already exists.
 
   /auth/login:
     post:
@@ -76,6 +109,18 @@ paths:
                         type: integer
                       exp:
                         type: integer
+        '400':
+          description: Permintaan tidak valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  non_field_errors:
+                    type: array
+                    items:
+                      type: string
+                      example: Invalid email or password.
         '401':
           description: Kredensial tidak valid
 
