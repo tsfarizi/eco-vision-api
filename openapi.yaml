@@ -2,19 +2,20 @@ openapi: 3.1.0
 info:
   title: Ecovision API
   description: |
-    API untuk aplikasi klasifikasi sampah dengan pendekatan gamifikasi. 
-    Mendukung autentikasi berbasis JWT dan memiliki sistem EXP serta level user. 
-    Dirancang untuk mendukung ekstensibilitas terhadap sistem reward dan autentikasi berbasis OAuth di masa depan.
+    API untuk aplikasi klasifikasi sampah yang menggunakan gamifikasi. API ini mendukung autentikasi berbasis JWT, serta memiliki sistem EXP dan level untuk pengguna. Dirancang agar mudah dikembangkan lebih lanjut dengan sistem _reward_ dan autentikasi berbasis OAuth.
     ⚠️ [Placeholder Link](https://tsfarizi.github.io/) — belum final.
-  version: 0.1.2
+  version: 0.2.1
+
+servers:
+  - url: http://localhost:8000
+    description: Server Lokal Pengembangan
 
 paths:
   /auth/register:
     post:
       summary: Registrasi pengguna baru
       description: |
-        Mendaftarkan pengguna baru dan langsung mengembalikan token akses serta informasi user.
-        Dengan demikian, user tidak perlu melakukan login ulang setelah registrasi.
+        Mendaftarkan pengguna baru dan langsung mengembalikan token akses beserta informasi pengguna. Dengan demikian, pengguna tidak perlu masuk kembali setelah registrasi.
       requestBody:
         required: true
         content:
@@ -33,8 +34,7 @@ paths:
                 extra_fields:
                   type: object
                   description: |
-                    Opsi tambahan jika ingin menambahkan field-field lain seperti `full_name`, 
-                    atau `referral_code` untuk kebutuhan kampanye promosi atau segmentasi.
+                    Properti opsional untuk menambahkan _field_ lain seperti `full_name` atau `referral_code`, yang dapat digunakan untuk kampanye promosi atau segmentasi pengguna.
       responses:
         '201':
           description: Registrasi berhasil dan token diberikan
@@ -73,7 +73,7 @@ paths:
 
   /auth/login:
     post:
-      summary: Autentikasi pengguna dan menerima JWT
+      summary: Autentikasi pengguna untuk mendapatkan JWT
       requestBody:
         required: true
         content:
@@ -159,14 +159,9 @@ paths:
 
   /vision/classify:
     post:
-      summary: Kirim gambar untuk diklasifikasikan oleh model AI
+      summary: Klasifikasi gambar sampah menggunakan model AI
       description: |
-        Endpoint ini menerima gambar yang dikirimkan user, kemudian diklasifikasikan 
-        oleh model AI ke dalam kategori sampah yang sesuai. Sistem akan mengembalikan 
-        informasi klasifikasi serta poin yang didapat.
-        Sistem EXP dan Level dapat berubah secara dinamis sesuai kebijakan pengembang.
-        EXP per level dapat diatur ulang sewaktu-waktu.
-        **note : Reward ketika naik level juga bisa ditambahkan, namun saat ini masih opsional.**
+        _Endpoint_ ini menerima gambar yang dikirimkan pengguna untuk diklasifikasikan oleh model AI ke dalam kategori sampah yang sesuai. Sistem akan mengembalikan informasi klasifikasi, poin yang didapat, serta progres EXP dan Level pengguna. Sistem EXP dan Level dapat berubah secara dinamis sesuai kebijakan pengembang. Kebutuhan EXP per level dapat diatur ulang sewaktu-waktu. **Catatan: _Reward_ saat naik level juga dapat ditambahkan, namun saat ini bersifat opsional.**
       requestBody:
         required: true
         content:
@@ -204,11 +199,160 @@ paths:
                     type: string
                     nullable: true
                     description: |
-                      Informasi reward jika user naik level. Field ini opsional dan akan 
-                      muncul jika reward sudah didefinisikan.
-                      Contoh: "Badge: Eco Hero", "Voucher", dll.
+                      Informasi _reward_ jika pengguna naik level. _Field_ ini opsional dan hanya akan muncul jika _reward_ sudah didefinisikan. Contoh: "Badge: Eco Hero", "Voucher", dll.
+
+  /waste-banks:
+    get:
+      summary: Lihat daftar semua bank sampah
+      description: Menampilkan daftar semua bank sampah yang telah terdaftar di sistem.
+      responses:
+        '200':
+          description: Daftar bank sampah berhasil ditampilkan
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                    latitude:
+                      type: number
+                      format: float
+                    longitude:
+                      type: number
+                      format: float
+                    waste_processed:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                    opening_hours:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/OpeningHour'
+        '500':
+          description: Kesalahan server internal
+    post:
+      summary: Tambahkan bank sampah baru
+      description: _Endpoint_ untuk menambahkan data bank sampah baru. Anda perlu menyertakan ID jenis sampah yang dapat diproses oleh bank sampah tersebut.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, latitude, longitude, waste_processed, opening_hours]
+              properties:
+                name:
+                  type: string
+                  example: Bank Sampah Maju Jaya
+                latitude:
+                  type: number
+                  format: float
+                  example: -6.200000
+                longitude:
+                  type: number
+                  format: float
+                  example: 106.816666
+                waste_processed:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: |
+                    Daftar ID unik jenis sampah yang diterima oleh bank sampah. Berikut adalah pilihan yang tersedia:
+                    - `fad601ef-6951-4439-adf2-879d2a0d9c81`: Kardus
+                    - `b7f8ef1d-f54e-426b-9838-94c2e0f35422`: Sampah Organik (misalnya sisa makanan, daun)
+                    - `a211794d-81ca-4bcd-afed-8e56f70127c8`: Kaca
+                    - `9ce04f3e-5bc6-4a2b-84b3-8bbbacff1df6`: Baterai
+                    - `9b1bd5f3-110c-4566-978a-a32d8d91e6fd`: Kertas
+                    - `90f26646-32ae-4073-aa47-31e41c96213c`: Sepatu
+                    - `863bde71-e041-4366-a3d4-60c02ae850b3`: Logam
+                    - `5340cbed-9e9e-4362-b5a3-ab99909b4abd`: Pakaian
+                    - `1e5f44ce-9b2c-49b4-9137-c5ecf755bd57`: Plastik
+                    - `1b1dc17c-7917-41b3-945e-09330e0ed49f`: Sampah B3 (Bahan Berbahaya dan Beracun, contoh: limbah medis, pestisida)
+                  example: ["fad601ef-6951-4439-adf2-879d2a0d9c81", "9b1bd5f3-110c-4566-978a-a32d8d91e6fd"]
+                opening_hours:
+                  type: array
+                  items:
+                    type: object
+                    required: [day, open_time, close_time]
+                    properties:
+                      day:
+                        type: string
+                        enum: [senin, selasa, rabu, kamis, jumat, sabtu, minggu]
+                        example: senin
+                      open_time:
+                        type: string
+                        format: time
+                        example: "08:00:00"
+                      close_time:
+                        type: string
+                        format: time
+                        example: "17:00:00"
+      responses:
+        '201':
+          description: Bank sampah berhasil ditambahkan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  latitude:
+                    type: number
+                    format: float
+                  longitude:
+                    type: number
+                    format: float
+                  waste_processed: # This will be read_only, so it might be different from request
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: 
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                  opening_hours:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OpeningHour' # Assuming OpeningHour schema is defined
+        '400':
+          description: Permintaan tidak valid
 
 components:
+  schemas:
+    OpeningHour:
+      type: object
+      required: [day, open_time, close_time]
+      properties:
+        day:
+          type: string
+          enum: [senin, selasa, rabu, kamis, jumat, sabtu, minggu]
+        open_time:
+          type: string
+          format: time
+          example: "08:00:00"
+        close_time:
+          type: string
+          format: time
+          example: "17:00:00"
   securitySchemes:
     bearerAuth:
       type: http
