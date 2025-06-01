@@ -13,31 +13,27 @@ servers:
 paths:
   /auth/register:
     post:
-      summary: Registrasi pengguna baru
-      description: |
-        Mendaftarkan pengguna baru dan langsung mengembalikan token akses beserta informasi pengguna. Dengan demikian, pengguna tidak perlu masuk kembali setelah registrasi.
+      summary: Registrasi Pengguna Baru
+      description: Mendaftarkan pengguna baru dengan email, username, dan password. Mengembalikan token akses, token refresh, dan detail pengguna jika berhasil.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [username, email, password]
+              required: [email, username, password]
               properties:
-                username:
-                  type: string
                 email:
                   type: string
                   format: email
+                username:
+                  type: string
                 password:
                   type: string
-                extra_fields:
-                  type: object
-                  description: |
-                    Properti opsional untuk menambahkan _field_ lain seperti `full_name` atau `referral_code`, yang dapat digunakan untuk kampanye promosi atau segmentasi pengguna.
+                  format: password
       responses:
         '201':
-          description: Registrasi berhasil dan token diberikan
+          description: Registrasi berhasil. Token akses, token refresh, dan detail pengguna dikembalikan.
           content:
             application/json:
               schema:
@@ -54,26 +50,30 @@ paths:
                         type: string
                       email:
                         type: string
+                        format: email
                       level:
                         type: integer
+                        example: 0
                       exp:
                         type: integer
+                        example: 0
         '400':
-          description: Permintaan tidak valid
+          description: Permintaan tidak valid karena input salah atau data sudah ada.
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  non_field_errors:
-                    type: array
-                    items:
-                      type: string
-                      example: user with this email already exists.
-
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  email: ["user with this email already exists."]
+                  password: ["This password is too short. It must contain at least 8 characters."]
   /auth/login:
     post:
-      summary: Autentikasi pengguna untuk mendapatkan JWT
+      summary: Login Pengguna
+      description: Mengautentikasi pengguna dengan email dan password. Mengembalikan token akses, token refresh, dan detail pengguna jika berhasil.
       requestBody:
         required: true
         content:
@@ -87,9 +87,10 @@ paths:
                   format: email
                 password:
                   type: string
+                  format: password
       responses:
         '200':
-          description: Token berhasil diberikan
+          description: Login berhasil. Token akses, token refresh, dan detail pengguna dikembalikan.
           content:
             application/json:
               schema:
@@ -106,12 +107,15 @@ paths:
                         type: string
                       email:
                         type: string
+                        format: email
                       level:
                         type: integer
+                        example: 0
                       exp:
                         type: integer
+                        example: 0
         '400':
-          description: Permintaan tidak valid
+          description: Permintaan tidak valid karena kredensial salah.
           content:
             application/json:
               schema:
@@ -121,83 +125,181 @@ paths:
                     type: array
                     items:
                       type: string
-                      example: Invalid email or password.
+                example:
+                  non_field_errors: ["Invalid email or password."]
 
   /auth/refresh:
     post:
-      summary: Refresh token untuk mendapatkan token baru
+      summary: Perbarui Token Akses
+      description: Menggunakan token refresh untuk mendapatkan token akses baru.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [refresh_token]
+              required: [refresh]
               properties:
-                refresh_token:
+                refresh:
                   type: string
       responses:
         '200':
-          description: Token berhasil diperbarui
+          description: Token akses berhasil diperbarui.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  access_token:
+                  access:
                     type: string
+        '401':
+          description: Token refresh tidak valid atau kedaluwarsa.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                  code:
+                    type: string
+                example:
+                  detail: "Token is invalid or expired"
+                  code: "token_not_valid"
 
-  /vision/classify:
+  /auth/protected/:
+    get:
+      summary: Contoh Endpoint Terproteksi
+      description: Endpoint ini adalah contoh bagaimana mengakses resource yang memerlukan autentikasi JWT. Token akses harus disertakan dalam header Authorization sebagai Bearer token.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Pesan sukses jika autentikasi berhasil.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Hello, TestUser!"
+        '401':
+          description: Autentikasi gagal karena token tidak ada, tidak valid, atau kedaluwarsa.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                example:
+                  detail: "Authentication credentials were not provided."
+
+  /predict/:
     post:
-      summary: Klasifikasi gambar sampah menggunakan model AI
-      description: |
-        _Endpoint_ ini menerima gambar yang dikirimkan pengguna untuk diklasifikasikan oleh model AI ke dalam kategori sampah yang sesuai. Sistem akan mengembalikan informasi klasifikasi, poin yang didapat, serta progres EXP dan Level pengguna. Sistem EXP dan Level dapat berubah secara dinamis sesuai kebijakan pengembang. Kebutuhan EXP per level dapat diatur ulang sewaktu-waktu. **Catatan: _Reward_ saat naik level juga dapat ditambahkan, namun saat ini bersifat opsional.**
+      summary: Klasifikasi Gambar Sampah & Rekomendasi Bank Sampah
+      description: Unggah gambar sampah untuk diklasifikasikan oleh model AI. Sistem akan mengembalikan jenis sampah yang terdeteksi beserta rekomendasi bank sampah terdekat yang menerima jenis sampah tersebut.
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
+              required: [image]
               properties:
                 image:
                   type: string
                   format: binary
       responses:
         '200':
-          description: Klasifikasi berhasil dilakukan
+          description: Klasifikasi berhasil dan rekomendasi bank sampah diberikan.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  category:
+                  predicted_class:
                     type: string
-                    example: "Plastic"
-                  points_awarded:
+                    example: "plastic"
+                  class_index:
                     type: integer
-                    example: 10
-                  exp_gained:
-                    type: integer
-                    example: 50
-                  current_level:
-                    type: integer
-                    example: 2
-                  next_level_exp_required:
-                    type: integer
-                    example: 500
-                  reward:
+                    example: 7
+                  info:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                        example: "Jenis sampah ini dikenali sebagai 'plastic'."
+                      how_to_process:
+                        type: string
+                        example: "Sampah ini bisa dipisahkan dan dibawa ke bank sampah yang sesuai."
+                  recommended_banks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: "Bank Sampah Sejahtera"
+                        latitude:
+                          type: number
+                          format: float
+                          example: -6.12345
+                        longitude:
+                          type: number
+                          format: float
+                          example: 106.54321
+                        opening_hours:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              day:
+                                type: string
+                                example: "senin"
+                              open_time:
+                                type: string
+                                pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]$'
+                                example: "08:00"
+                              close_time:
+                                type: string
+                                pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]$'
+                                example: "16:00"
+        '400':
+          description: Permintaan tidak valid, misalnya file tidak ditemukan atau gagal diproses.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
                     type: string
-                    nullable: true
-                    description: |
-                      Informasi _reward_ jika pengguna naik level. _Field_ ini opsional dan hanya akan muncul jika _reward_ sudah didefinisikan. Contoh: "Badge: Eco Hero", "Voucher", dll.
+              example:
+                error: "File gambar tidak ditemukan."
+        '401':
+          description: Autentikasi gagal karena token tidak ada, tidak valid, atau kedaluwarsa.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                example:
+                  detail: "Authentication credentials were not provided."
 
   /waste-banks:
     get:
-      summary: Lihat daftar semua bank sampah
-      description: Menampilkan daftar semua bank sampah yang telah terdaftar di sistem.
+      summary: Daftar Semua Bank Sampah
+      description: Menampilkan daftar semua bank sampah yang terdaftar di sistem, termasuk detail jenis sampah yang diproses dan jam operasional. Memerlukan autentikasi.
+      security:
+        - bearerAuth: []
       responses:
         '200':
-          description: Daftar bank sampah berhasil ditampilkan
+          description: Daftar bank sampah berhasil ditampilkan.
           content:
             application/json:
               schema:
@@ -219,22 +321,29 @@ paths:
                     waste_processed:
                       type: array
                       items:
-                        type: object
-                        properties:
-                          id:
-                            type: string
-                            format: uuid
-                          name:
-                            type: string
+                        $ref: '#/components/schemas/WasteTypeOutput'
                     opening_hours:
                       type: array
                       items:
                         $ref: '#/components/schemas/OpeningHour'
+        '401':
+          description: Autentikasi gagal karena token tidak ada, tidak valid, atau kedaluwarsa.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                example:
+                  detail: "Authentication credentials were not provided."
         '500':
-          description: Kesalahan server internal
+          description: Kesalahan server internal.
     post:
-      summary: Tambahkan bank sampah baru
-      description: _Endpoint_ untuk menambahkan data bank sampah baru. Anda perlu menyertakan ID jenis sampah yang dapat diproses oleh bank sampah tersebut.
+      summary: Tambah Bank Sampah Baru
+      description: Endpoint untuk menambahkan data bank sampah baru. Anda perlu menyertakan ID jenis sampah yang dapat diproses dan jam operasional. Memerlukan autentikasi.
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -301,23 +410,10 @@ paths:
                   type: array
                   items:
                     type: object
-                    required: [day, open_time, close_time]
-                    properties:
-                      day:
-                        type: string
-                        enum: [senin, selasa, rabu, kamis, jumat, sabtu, minggu]
-                        example: senin
-                      open_time:
-                        type: string
-                        format: time
-                        example: "08:00:00"
-                      close_time:
-                        type: string
-                        format: time
-                        example: "17:00:00"
+                    $ref: '#/components/schemas/OpeningHour'
       responses:
         '201':
-          description: Bank sampah berhasil ditambahkan
+          description: Bank sampah berhasil ditambahkan. Mengembalikan detail bank sampah yang baru dibuat (tanpa waste_processed dan opening_hours).
           content:
             application/json:
               example:
@@ -339,22 +435,31 @@ paths:
                   longitude:
                     type: number
                     format: float
-                  waste_processed: # This will be read_only, so it might be different from request
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id: 
-                          type: string
-                          format: uuid
-                        name:
-                          type: string
-                  opening_hours:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/OpeningHour' # Assuming OpeningHour schema is defined
         '400':
-          description: Permintaan tidak valid
+          description: Permintaan tidak valid karena input salah atau data tidak lengkap.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  name: ["This field is required."]
+                  waste_processed: ["Invalid uuid."]
+                  opening_hours: [{"day": ["This field is required."]}]
+        '401':
+          description: Autentikasi gagal karena token tidak ada, tidak valid, atau kedaluwarsa.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                example:
+                  detail: "Authentication credentials were not provided."
 
   /leaderboard/:
     get:
@@ -430,14 +535,25 @@ components:
         day:
           type: string
           enum: [senin, selasa, rabu, kamis, jumat, sabtu, minggu]
+          example: senin # Added example for consistency
         open_time:
           type: string
-          format: time
+          format: time # Assuming HH:MM:SS from DRF TimeField
           example: "08:00:00"
         close_time:
           type: string
-          format: time
+          format: time # Assuming HH:MM:SS from DRF TimeField
           example: "17:00:00"
+    WasteTypeOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: "Nama jenis sampah (e.g., cardboard, plastic)"
+          example: "cardboard"
   securitySchemes:
     bearerAuth:
       type: http
