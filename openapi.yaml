@@ -249,6 +249,31 @@ paths:
         required: true
         content:
           application/json:
+            example:
+              name: Bank Sampah Bambu
+              latitude: -6.2
+              longitude: 106.8
+              waste_processed:
+                - fad601ef-6951-4439-adf2-879d2a0d9c81
+                - b7f8ef1d-f54e-426b-9838-94c2e0f35422
+                - a211794d-81ca-4bcd-afed-8e56f70127c8
+                - 9ce04f3e-5bc6-4a2b-84b3-8bbbacff1df6
+                - 9b1bd5f3-110c-4566-978a-a32d8d91e6fd
+                - 90f26646-32ae-4073-aa47-31e41c96213c
+                - 863bde71-e041-4366-a3d4-60c02ae850b3
+                - 5340cbed-9e9e-4362-b5a3-ab99909b4abd
+                - 1e5f44ce-9b2c-49b4-9137-c5ecf755bd57
+                - 1b1dc17c-7917-41b3-945e-09330e0ed49f
+              opening_hours:
+                - day: senin
+                  open_time: "08:00:00"
+                  close_time: "16:00:00"
+                - day: rabu
+                  open_time: "09:00:00"
+                  close_time: "15:30:00"
+                - day: jumat
+                  open_time: "08:30:00"
+                  close_time: "13:00:00"
             schema:
               type: object
               required: [name, latitude, longitude, waste_processed, opening_hours]
@@ -271,16 +296,16 @@ paths:
                     format: uuid
                   description: |
                     Daftar ID unik jenis sampah yang diterima oleh bank sampah. Berikut adalah pilihan yang tersedia:
-                    - `fad601ef-6951-4439-adf2-879d2a0d9c81`: Kardus
-                    - `b7f8ef1d-f54e-426b-9838-94c2e0f35422`: Sampah Organik (misalnya sisa makanan, daun)
-                    - `a211794d-81ca-4bcd-afed-8e56f70127c8`: Kaca
-                    - `9ce04f3e-5bc6-4a2b-84b3-8bbbacff1df6`: Baterai
-                    - `9b1bd5f3-110c-4566-978a-a32d8d91e6fd`: Kertas
-                    - `90f26646-32ae-4073-aa47-31e41c96213c`: Sepatu
-                    - `863bde71-e041-4366-a3d4-60c02ae850b3`: Logam
-                    - `5340cbed-9e9e-4362-b5a3-ab99909b4abd`: Pakaian
-                    - `1e5f44ce-9b2c-49b4-9137-c5ecf755bd57`: Plastik
-                    - `1b1dc17c-7917-41b3-945e-09330e0ed49f`: Sampah B3 (Bahan Berbahaya dan Beracun, contoh: limbah medis, pestisida)
+                    - `fad601ef-6951-4439-adf2-879d2a0d9c81`: cardboard (kardus)
+                    - `b7f8ef1d-f54e-426b-9838-94c2e0f35422`: trash (sampah umum/sisa)
+                    - `a211794d-81ca-4bcd-afed-8e56f70127c8`: glass (kaca)
+                    - `9ce04f3e-5bc6-4a2b-84b3-8bbbacff1df6`: battery (baterai)
+                    - `9b1bd5f3-110c-4566-978a-a32d8d91e6fd`: paper (kertas)
+                    - `90f26646-32ae-4073-aa47-31e41c96213c`: shoes (sepatu)
+                    - `863bde71-e041-4366-a3d4-60c02ae850b3`: metal (logam)
+                    - `5340cbed-9e9e-4362-b5a3-ab99909b4abd`: clothes (pakaian)
+                    - `1e5f44ce-9b2c-49b4-9137-c5ecf755bd57`: plastic (plastik)
+                    - `1b1dc17c-7917-41b3-945e-09330e0ed49f`: biological (sampah biologis/hayati)
                   example: ["fad601ef-6951-4439-adf2-879d2a0d9c81", "9b1bd5f3-110c-4566-978a-a32d8d91e6fd"]
                 opening_hours:
                   type: array
@@ -305,6 +330,11 @@ paths:
           description: Bank sampah berhasil ditambahkan
           content:
             application/json:
+              example:
+                id: c84100a9-d0d8-4cba-b6c0-8053a9620269
+                name: Bank Sampah Bambu
+                latitude: -6.2
+                longitude: 106.8
               schema:
                 type: object
                 properties:
@@ -335,6 +365,37 @@ paths:
                       $ref: '#/components/schemas/OpeningHour' # Assuming OpeningHour schema is defined
         '400':
           description: Permintaan tidak valid
+
+  /leaderboard/:
+    get:
+      summary: Papan Peringkat Pengguna
+      description: Menampilkan daftar pengguna berdasarkan peringkat EXP tertinggi.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Papan peringkat berhasil ditampilkan.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    rank:
+                      type: integer
+                      example: 1
+                    username:
+                      type: string
+                      example: "user_teratas"
+                    exp:
+                      type: integer
+                      example: 10500
+                    level:
+                      type: integer
+                      example: 12
+        '500':
+          description: Kesalahan server internal.
 
 components:
   schemas:
