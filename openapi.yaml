@@ -147,16 +147,6 @@ paths:
                   access_token:
                     type: string
 
-  /auth/oauth:
-    get:
-      summary: OAuth login (opsional)
-      description: |
-        Endpoint ini disediakan untuk kemungkinan integrasi login dengan OAuth 
-        (Google, Apple, dll.) pada versi berikutnya.
-      responses:
-        '501':
-          description: Belum diimplementasikan
-
   /vision/classify:
     post:
       summary: Klasifikasi gambar sampah menggunakan model AI
@@ -377,23 +367,57 @@ paths:
           description: Papan peringkat berhasil ditampilkan.
           content:
             application/json:
+              example:
+                leaderboard:
+                  - rank: 1
+                    username: user
+                    email: user@testing.com
+                    exp: 2912
+                    level: 29
+                    is_you: true
+                your_rank: 1
+                total_users: 1
+                offset: 0
+                limit: 10
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    rank:
-                      type: integer
-                      example: 1
-                    username:
-                      type: string
-                      example: "user_teratas"
-                    exp:
-                      type: integer
-                      example: 10500
-                    level:
-                      type: integer
-                      example: 12
+                type: object
+                properties:
+                  leaderboard:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rank:
+                          type: integer
+                          example: 1
+                        username:
+                          type: string
+                          example: "user_hebat"
+                        email:
+                          type: string
+                          format: email
+                          example: "user@example.com"
+                        exp:
+                          type: integer
+                          example: 10500
+                        level:
+                          type: integer
+                          example: 12
+                        is_you:
+                          type: boolean
+                          example: false
+                  your_rank:
+                    type: integer
+                    example: 5
+                  total_users:
+                    type: integer
+                    example: 150
+                  offset:
+                    type: integer
+                    example: 0
+                  limit:
+                    type: integer
+                    example: 10
         '500':
           description: Kesalahan server internal.
 
