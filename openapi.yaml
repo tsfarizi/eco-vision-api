@@ -2,9 +2,8 @@ openapi: 3.1.0
 info:
   title: Ecovision API
   description: |
-    API untuk aplikasi klasifikasi sampah yang menggunakan gamifikasi. API ini mendukung autentikasi berbasis JWT, serta memiliki sistem EXP dan level untuk pengguna. Dirancang agar mudah dikembangkan lebih lanjut dengan sistem _reward_ dan autentikasi berbasis OAuth.
-    ⚠️ [Placeholder Link](https://tsfarizi.github.io/) — belum final.
-  version: 0.2.1
+    API untuk aplikasi klasifikasi sampah yang menggunakan gamifikasi. API ini mendukung autentikasi berbasis JWT, serta memiliki sistem EXP dan level untuk pengguna.
+  version: 0.2.2
 
 servers:
   - url: http://localhost:8000
@@ -535,14 +534,14 @@ components:
         day:
           type: string
           enum: [senin, selasa, rabu, kamis, jumat, sabtu, minggu]
-          example: senin # Added example for consistency
+          example: senin 
         open_time:
           type: string
-          format: time # Assuming HH:MM:SS from DRF TimeField
+          format: time 
           example: "08:00:00"
         close_time:
           type: string
-          format: time # Assuming HH:MM:SS from DRF TimeField
+          format: time 
           example: "17:00:00"
     WasteTypeOutput:
       type: object
