@@ -13,7 +13,12 @@ paths:
   /auth/register:
     post:
       summary: Registrasi Pengguna Baru
-      description: Mendaftarkan pengguna baru dengan email, username, dan password. Mengembalikan token akses, token refresh, dan detail pengguna jika berhasil.
+      description: |
+        Mendaftarkan pengguna baru dengan email, username, dan password. Mengembalikan token akses, token refresh, dan detail pengguna jika berhasil.
+
+        Deskripsi Validitas Token:
+        - Access Token berlaku selama 5 menit.
+        - Refresh Token berlaku selama 1 hari (24 jam).
       requestBody:
         required: true
         content:
@@ -72,7 +77,12 @@ paths:
   /auth/login:
     post:
       summary: Login Pengguna
-      description: Mengautentikasi pengguna dengan email dan password. Mengembalikan token akses, token refresh, dan detail pengguna jika berhasil.
+      description: |
+        Mengautentikasi pengguna dengan email dan password. Mengembalikan token akses, token refresh, dan detail pengguna jika berhasil.
+
+        Deskripsi Validitas Token:
+        - Access Token berlaku selama 5 menit.
+        - Refresh Token berlaku selama 1 hari (24 jam).
       requestBody:
         required: true
         content:
@@ -130,7 +140,12 @@ paths:
   /auth/refresh:
     post:
       summary: Perbarui Token Akses
-      description: Menggunakan token refresh untuk mendapatkan token akses baru.
+      description: |
+        Menggunakan token refresh untuk mendapatkan token akses baru.
+
+        Deskripsi Validitas Token:
+        - Access Token berlaku selama 5 menit.
+        - Refresh Token berlaku selama 1 hari (24 jam).
       requestBody:
         required: true
         content:
