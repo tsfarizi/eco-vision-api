@@ -4,8 +4,11 @@ if [ ! -f "/app/db.sqlite3" ]; then
   echo "No database found, running makemigrations and migrate..."
   python manage.py makemigrations --noinput
   python manage.py migrate --noinput
+
+  echo "Loading initial data..."
+  python manage.py loaddata initial_waste_types.json
 else
-  echo "Database already exists, skipping migration."
+  echo "Database already exists, skipping migration and data load."
 fi
 
 python manage.py runserver 0.0.0.0:8000
