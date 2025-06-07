@@ -3,6 +3,38 @@ info:
   title: Ecovision API
   description: |
     API untuk aplikasi klasifikasi sampah yang menggunakan gamifikasi. API ini mendukung autentikasi berbasis JWT, serta memiliki sistem EXP dan level untuk pengguna.
+
+    ---
+
+    ### Konfigurasi Docker Compose (untuk Pengembangan dengan SQLite)
+
+    Berikut adalah contoh konfigurasi `docker-compose.yml` yang dapat Anda gunakan untuk menjalankan aplikasi ini dalam mode pengembangan dengan database SQLite.
+    Anda dapat menyalin dan menempelkan konfigurasi di bawah ini ke dalam file `docker-compose.yml` Anda sendiri.
+
+    **Catatan Penting:**
+    - Konfigurasi ini secara spesifik ditujukan untuk penggunaan dengan **SQLite**. Volume `eco_db_data` digunakan untuk persistensi data SQLite.
+    - Jika Anda berencana menggunakan database lain (misalnya PostgreSQL) atau menyiapkan untuk lingkungan produksi, Anda **perlu menyesuaikan** bagian `volumes` dan kemungkinan menambahkan layanan database terpisah (misalnya, layanan PostgreSQL) ke dalam konfigurasi Docker Compose Anda.
+
+    ```yaml
+    services:
+      eco-vision-api:
+        image: farizi/eco-vision-api:0.2.3
+        ports:
+          - "8000:8000"
+        volumes:
+          - eco_db_data:/data
+
+    volumes:
+      eco_db_data:
+    ```
+
+    ### Informasi Validitas Token Autentikasi
+
+    Untuk menjaga keamanan dan pengelolaan sesi pengguna, token autentikasi memiliki masa berlaku sebagai berikut:
+    - **Access Token**: Berlaku selama 5 menit. Token ini digunakan untuk mengakses endpoint yang terproteksi.
+    - **Refresh Token**: Berlaku selama 1 hari (24 jam). Token ini digunakan untuk mendapatkan Access Token baru tanpa perlu login ulang.
+
+    Pastikan aplikasi Anda menangani kedaluwarsa token dengan benar dan meminta token baru menggunakan Refresh Token jika diperlukan.
   version: 0.2.3
 
 servers:
@@ -15,10 +47,6 @@ paths:
       summary: Registrasi Pengguna Baru
       description: |
         Mendaftarkan pengguna baru dengan email, username, dan password. Mengembalikan token akses, token refresh, dan detail pengguna jika berhasil.
-
-        Deskripsi Validitas Token:
-        - Access Token berlaku selama 5 menit.
-        - Refresh Token berlaku selama 1 hari (24 jam).
       requestBody:
         required: true
         content:
@@ -79,10 +107,6 @@ paths:
       summary: Login Pengguna
       description: |
         Mengautentikasi pengguna dengan email dan password. Mengembalikan token akses, token refresh, dan detail pengguna jika berhasil.
-
-        Deskripsi Validitas Token:
-        - Access Token berlaku selama 5 menit.
-        - Refresh Token berlaku selama 1 hari (24 jam).
       requestBody:
         required: true
         content:
@@ -142,10 +166,6 @@ paths:
       summary: Perbarui Token Akses
       description: |
         Menggunakan token refresh untuk mendapatkan token akses baru.
-
-        Deskripsi Validitas Token:
-        - Access Token berlaku selama 5 menit.
-        - Refresh Token berlaku selama 1 hari (24 jam).
       requestBody:
         required: true
         content:
