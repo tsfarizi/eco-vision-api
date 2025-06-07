@@ -3,7 +3,7 @@ info:
   title: Ecovision API
   description: |
     API untuk aplikasi klasifikasi sampah yang menggunakan gamifikasi. API ini mendukung autentikasi berbasis JWT, serta memiliki sistem EXP dan level untuk pengguna.
-  version: 0.2.2
+  version: 0.2.3
 
 servers:
   - url: http://localhost:8000
