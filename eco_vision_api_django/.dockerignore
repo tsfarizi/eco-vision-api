@@ -5,7 +5,8 @@ __pycache__/
 *.log
 *.sqlite3-journal
 *.sqlite3
-**/migrations/
+**/migrations/*.pyc
+**/migrations/__pycache__/
 .env
 .vscode/
 .idea/
