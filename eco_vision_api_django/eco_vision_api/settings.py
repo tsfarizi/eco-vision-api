@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'eco_vision_api_edu_app',
     'eco_vision_api_bank_app',
     'eco_vision_api_leader_board_app',
+    'eco_vision_api_trash_can_app'
 ]
 
 MIDDLEWARE = [
