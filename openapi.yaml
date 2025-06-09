@@ -494,6 +494,47 @@ paths:
                     type: string
                 example:
                   detail: "Authentication credentials were not provided."
+  /trash-cans:
+    get:
+      summary: Daftar Semua Tempat Sampah
+      description: Menampilkan daftar semua tempat sampah yang terdaftar di sistem, termasuk detail jenis sampah yang diterima. Memerlukan autentikasi.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Daftar tempat sampah berhasil ditampilkan.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrashCan'
+              example:
+                - id: "1c0c7a78-13e4-4702-9278-6760c93308e2"
+                  latitude: -6.241586
+                  longitude: 106.992416
+                  accepted_waste_types:
+                    - id: "1e5f44ce-9b2c-49b4-9137-c5ecf755bd57"
+                      name: "plastic"
+                    - id: "90f26646-32ae-4073-aa47-31e41c96213c"
+                      name: "shoes"
+                    - id: "a211794d-81ca-4bcd-afed-8e56f70127c8"
+                      name: "glass"
+                    - id: "b7f8ef1d-f54e-426b-9838-94c2e0f35422"
+                      name: "trash"
+        '401':
+          description: Autentikasi gagal karena token tidak ada, tidak valid, atau kedaluwarsa.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                example:
+                  detail: "Authentication credentials were not provided."
+        '500':
+          description: Kesalahan server internal.
 
   /leaderboard/:
     get:
@@ -588,6 +629,28 @@ components:
           type: string
           description: "Nama jenis sampah (e.g., cardboard, plastic)"
           example: "cardboard"
+    TrashCan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        accepted_waste_types:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              name:
+                type: string
   securitySchemes:
     bearerAuth:
       type: http
