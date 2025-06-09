@@ -51,9 +51,10 @@ Beberapa endpoint utama antara lain:
 
 1. Pastikan Docker dan Docker Compose terpasang.
 2. Masuk ke direktori `eco_vision_api_django`.
-3. Jalankan `docker compose up` untuk menarik image dan memulai server di port 8000.
+3. Tarik image Docker terbaru: `docker pull farizi/eco-vision-api`
+4. Jalankan `docker compose up` untuk menarik image dan memulai server di port 8000.
 
-Script `entrypoint.sh` akan otomatis menjalankan migrasi, memuat `initial_waste_types.json`, lalu mengeksekusi Django `runserver` jika database belum ada.
+Script `entrypoint.sh` akan otomatis menjalankan migrasi, memuat data awal dari `initial_waste_types.json`, `initial_trash_can.json`, dan `initial_waste_bank.json`, lalu mengeksekusi Django `runserver` jika database belum ada.
 
 ## Catatan Tambahan
 
