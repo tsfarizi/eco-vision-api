@@ -7,6 +7,8 @@ if [ ! -f "/app/db.sqlite3" ]; then
 
   echo "Loading initial data..."
   python manage.py loaddata initial_waste_types.json
+  python manage.py loaddata initial_waste_bank.json
+  python manage.py loaddata initial_trash_can.json
 else
   echo "Database already exists, skipping migration and data load."
 fi

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import WasteBank, WasteType, OpeningHour
+from .models import WasteBank, WasteType, OpeningHour, TrashCan
 
 class WasteTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,4 +22,10 @@ class WasteBankSerializer(serializers.ModelSerializer):
             'waste_processed',
             'opening_hours',
         ]
-\
+        
+class TrashCanSerializer(serializers.ModelSerializer):
+    accepted_waste_types = WasteTypeSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TrashCan
+        fields = ['id', 'latitude', 'longitude', 'accepted_waste_types']

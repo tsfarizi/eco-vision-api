@@ -42,3 +42,12 @@ class OpeningHour(models.Model):
 
     def __str__(self):
         return f"{self.bank.name} - {self.day}"
+
+class TrashCan(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    accepted_waste_types = models.ManyToManyField(WasteType)
+
+    def __str__(self):
+        return f"Trash Can at ({self.latitude}, {self.longitude})"

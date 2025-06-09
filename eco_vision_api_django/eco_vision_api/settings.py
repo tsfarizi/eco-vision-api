@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'eco_vision_api_edu_app',
     'eco_vision_api_bank_app',
     'eco_vision_api_leader_board_app',
-    'eco_vision_api_trash_can_app'
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -53,9 +53,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'eco_vision_api.urls'
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 TEMPLATES = [
     {

@@ -17,13 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from eco_vision_api_edu_app.views import PredictImageView
-from eco_vision_api_bank_app.views import WasteBankListCreateView
+from eco_vision_api_bank_app.views import WasteBankListView,TrashCanListView
 from eco_vision_api_leader_board_app.views import LeaderboardView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('eco_vision_api_auth_app.urls')),
     path('predict/', PredictImageView.as_view(), name='predict'),
-    path('waste-banks/', WasteBankListCreateView.as_view(), name='waste_bank'),
+    path('waste-banks/', WasteBankListView.as_view(), name='waste_bank'),
+    path('trash-cans/', TrashCanListView.as_view(), name='trash_can'),
     path('leaderboard/', LeaderboardView.as_view(), name='leaderboard'),
 ]
