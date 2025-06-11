@@ -28,7 +28,7 @@ File [`openapi.yaml`](openapi.yaml) berisi dokumentasi lengkap REST API. Di awal
 ```yaml
 services:
   eco-vision-api:
-    image: farizi/eco-vision-api:0.2.3
+    image: farizi/eco-vision-api:latest
     ports:
       - "8000:8000"
     volumes:
