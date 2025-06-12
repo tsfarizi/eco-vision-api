@@ -35,7 +35,7 @@ info:
     - **Refresh Token**: Berlaku selama 1 hari (24 jam). Token ini digunakan untuk mendapatkan Access Token baru tanpa perlu login ulang.
 
     Pastikan aplikasi Anda menangani kedaluwarsa token dengan benar dan meminta token baru menggunakan Refresh Token jika diperlukan.
-  version: 0.3.1
+  version: 1.0.0
 
 servers:
   - url: http://localhost:8000
