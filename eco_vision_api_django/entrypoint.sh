@@ -13,4 +13,4 @@ else
   echo "Database already exists, skipping migration and data load."
 fi
 
-python manage.py runserver 0.0.0.0:8000
+exec gunicorn eco_vision_api_django.wsgi:application --bind 0.0.0.0:8000 --workers 3
